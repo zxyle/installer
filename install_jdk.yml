@@ -1,0 +1,27 @@
+
+- hosts: test
+  vars:
+    # 本地JDK位置
+    jdk: ~/developer/software/jdk/jdk-8u202-linux-x64.tar.gz
+    # 安装目录
+    targert: /opt/soft
+    # 环境变量文件
+    env: /etc/profile
+
+  tasks:
+  - name: copy jdk remote hosts
+    copy: src=~/developer/software/jdk/jdk-8u202-linux-x64.tar.gz dest={{ targert }}
+  - name: Decompressing files
+    shell: chdir={{ targert }} tar zxvf jdk-8u202-linux-x64.tar.gz
+  - name: create links
+    file: src={{ targert }}/jdk1.8.0_202 dest=/usr/local/java state=link
+  - name: java_profile config
+    shell: /bin/echo {{ item }} >> /etc/profile
+    with_items:
+        - \# Java Env
+        - export JAVA_HOME=/usr/local/java
+        - export JRE_HOME=/usr/local/java/jre
+        - export CLASSPATH=.:\$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar:\$JRE_HOME/lib:\$CLASSPATH
+        - export PATH=\$JAVA_HOME/bin:\$PATH
+  - name: take effect
+    shell: source /etc/profile
