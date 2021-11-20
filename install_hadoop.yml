@@ -1,8 +1,12 @@
-
-- hosts: test
+# 设置hostname
+# ssh-keygen 并互相免密登录
+# ./bin/hdfs namenode -format
+# ./sbin/start-all.sh
+# TODO 删除block marker
+- hosts: hadoop
   vars:
-    targert: /opt/soft
-    java_home: /data/soft/jdk1.8.0_202
+    target: /opt/soft
+    java_home: /opt/soft/jdk1.8.0_202
     unzip_dir: hadoop-3.2.0
     tarball: hadoop-3.2.0.tar.gz
 
@@ -12,142 +16,150 @@
         name:
           - vim
           - ntp
+          - telnet
 
-    - name: every minute
-      cron:
-        minute: "*/1"
-        job: "/usr/sbin/ntpdate -u ntp.aliyun.com"
+#    - name: every minute
+#      cron:
+#        minute: "*/1"
+#        job: "/usr/sbin/ntpdate -u ntp.aliyun.com"
 
-    - name: stop and disable firewalld
+    - name: stop and disable firewalld.
       service:
         name: firewalld
         state: stopped
-        enable: no
+        enabled: False
 
     - name: set hosts
       shell: /bin/echo {{ item }} >> /etc/hosts
       with_items:
-        - 192.168.216.128 bigdata01
-        - 192.168.216.146 bigdata02
-        - 192.168.216.147 bigdata03
+        - 192.168.216.149 hadoop01
+        - 192.168.216.148 hadoop02
+        - 192.168.216.150 hadoop03
     - name: copy hadoop remote hosts
-      copy: src=~/developer/software/hadoop/{{ tarball }} dest={{ targert }}
+      copy: src=/root/{{ tarball }} dest={{ target }}
 
     - name: Decompressing files
-      shell: chdir={{ targert }} tar zxvf {{ tarball }}
+      shell: chdir={{ target }} tar zxvf {{ tarball }}
 
     - name: hadoop_profile config
       shell: /bin/echo {{ item }} >> /etc/profile
       with_items:
         - \# Hadoop Env
-        - export HADOOP_HOME={{ targert }}/{{ unzip_dir }}
+        - export HADOOP_HOME={{ target }}/{{ unzip_dir }}
         - export PATH=$PATH:$HADOOP_HOME/bin
         - export PATH=$PATH:$HADOOP_HOME/sbin
+    - name: take effect
+      shell: source /etc/profile
     - name: hadoop-env config
-      shell: /bin/echo {{ item }} >> {{ targert }}/{{ unzip_dir }}/etc/hadoop/hadoop-env.sh
+      shell: /bin/echo {{ item }} >> {{ target }}/{{ unzip_dir }}/etc/hadoop/hadoop-env.sh
       with_items:
         - export JAVA_HOME={{ java_home }}
         - export HADOOP_LOG_DIR=/data/hadoop_repo/logs/hadoop
-    - name: 修改core-site.xml
-      lineinfile:
-        path: /data/soft/{{ unzip_dir }}/etc/hadoop/core-site.xml
-        line: |
+    - name: modifiy core-site.xml
+      blockinfile:
+        path: "{{ target }}/{{ unzip_dir }}/etc/hadoop/core-site.xml"
+        block: |
           <property>
               <name>fs.defaultFS</name>
-              <value>hdfs://bigdata01:9000</value>
+              <value>hdfs://hadoop01:9000</value>
           </property>
           <property>
               <name>hadoop.tmp.dir</name>
               <value>/data/hadoop_repo</value>
-         </property>
+          </property>
 
         insertafter: "<configuration>"
-    - name: 修改hdfs-site.xml
-        lineinfile:
-          path: {{ targert }}/{{ unzip_dir }}/etc/hadoop/hdfs-site.xml
-          line: |
-            <property>
-                <name>dfs.replication</name>
-                <value>2</value>
-            </property>
-            <property>
-                <name>dfs.namenode.secondary.http-address</name>
-                <value>bigdata01:50090</value>
-            </property>
-
-          insertafter: "<configuration>"
-    - name: 修改mapred-site.xml
-      lineinfile:
-        path: {{ targert }}/{{ unzip_dir }}/etc/hadoop/mapred-site.xml
-        line: |
+    - name: modifiy hdfs-site.xml
+      blockinfile:
+        path: "{{ target }}/{{ unzip_dir }}/etc/hadoop/hdfs-site.xml"
+        block: |
+          <property>
+              <name>dfs.replication</name>
+              <value>2</value>
+          </property>
+          <property>
+              <name>dfs.namenode.secondary.http-address</name>
+              <value>hadoop01:50090</value>
+          </property>
+          <property>
+              <name>dfs.namenode.datanode.registration.ip-hostname-check</name>
+              <value>false</value>
+          </property>
+        insertafter: "<configuration>"
+    - name: modifiy mapred-site.xml
+      blockinfile:
+        path: "{{ target }}/{{ unzip_dir }}/etc/hadoop/mapred-site.xml"
+        block: |
           <property>
               <name>mapreduce.framework.name</name>
               <value>yarn</value>
           </property>
-
         insertafter: "<configuration>"
-    - name: 修改yarn-site.xml
-      lineinfile:
-        path: {{ targert }}/{{ unzip_dir }}/etc/hadoop/yarn-site.xml
-        line: |
+    - name: modifiy yarn-site.xml
+      blockinfile:
+        path: "{{ target }}/{{ unzip_dir }}/etc/hadoop/yarn-site.xml"
+        block: |
           <property>
-                 <name>yarn.nodemanager.aux-services</name>
-                 <value>mapreduce_shuffle</value>
-             </property>
-             <property>
-                 <name>yarn.nodemanager.env-whitelist</name>
-                 <value>JAVA_HOME,HADOOP_COMMON_HOME,HADOOP_HDFS_HOME,HADOOP_CONF_DIR,CLASSPATH_PREPEND_DISTCACHE,HADOOP_YARN_HOME,HADOOP_MAPRED_HOME</value>
-             </property>
-          <property>
-          	<name>yarn.resourcemanager.hostname</name>
-          	<value>bigdata01</value>
+              <name>yarn.nodemanager.aux-services</name>
+              <value>mapreduce_shuffle</value>
           </property>
-
+          <property>
+              <name>yarn.nodemanager.env-whitelist</name>
+              <value>
+                  JAVA_HOME,HADOOP_COMMON_HOME,HADOOP_HDFS_HOME,HADOOP_CONF_DIR,CLASSPATH_PREPEND_DISTCACHE,HADOOP_YARN_HOME,HADOOP_MAPRED_HOME
+              </value>
+          </property>
+          <property>
+              <name>yarn.resourcemanager.hostname</name>
+              <value>hadoop01</value>
+          </property>
         insertafter: "<configuration>"
 
-    - name: 修改workers
+    - name: modifiy workers
       replace:
-        path: {{ targert }}/{{ unzip_dir }}/etc/hadoop/workers
+        path: "{{ target }}/{{ unzip_dir }}/etc/hadoop/workers"
         regexp: "localhost"
         replace: |
-          bigdata02
-          bigdata03
+          hadoop02
+          hadoop03
 
-    - name: 修改start-dfs.sh
-      lineinfile:
-        path: {{ targert }}/{{ unzip_dir }}/sbin/start-dfs.sh
-        line: |
+    - name: modifiy start-dfs.sh
+      blockinfile:
+        path: "{{ target }}/{{ unzip_dir }}/sbin/start-dfs.sh"
+        block: |
           HDFS_DATANODE_USER=root
           HDFS_DATANODE_SECURE_USER=hdfs
           HDFS_NAMENODE_USER=root
           HDFS_SECONDARYNAMENODE_USER=root
 
         insertafter: "#!/usr/bin/env bash"
-    - name: 修改stop-dfs.sh
-      lineinfile:
-        path: {{ targert }}/{{ unzip_dir }}{{ unzip_dir }}/sbin/stop-dfs.sh
-        line: |
+    - name: modifiy stop-dfs.sh
+      blockinfile:
+        path: "{{ target }}/{{ unzip_dir }}/sbin/stop-dfs.sh"
+        block: |
           HDFS_DATANODE_USER=root
           HDFS_DATANODE_SECURE_USER=hdfs
           HDFS_NAMENODE_USER=root
           HDFS_SECONDARYNAMENODE_USER=root
 
         insertafter: "#!/usr/bin/env bash"
-    - name: 修改start-yarn.sh
-      lineinfile:
-        path: {{ targert }}/{{ unzip_dir }}/sbin/start-yarn.sh
-        line: |
+    - name: modifiy start-yarn.sh
+      blockinfile:
+        path: "{{ target }}/{{ unzip_dir }}/sbin/start-yarn.sh"
+        block: |
           YARN_RESOURCEMANAGER_USER=root
           HADOOP_SECURE_DN_USER=yarn
           YARN_NODEMANAGER_USER=root
-
         insertafter: "#!/usr/bin/env bash"
-    - name: 修改stop-yarn.sh
-      lineinfile:
-        path: {{ targert }}/{{ unzip_dir }}/sbin/stop-yarn.sh
-        line: |
+    - name: modifiy stop-yarn.sh
+      blockinfile:
+        path: "{{ target }}/{{ unzip_dir }}/sbin/stop-yarn.sh"
+        block: |
           YARN_RESOURCEMANAGER_USER=root
           HADOOP_SECURE_DN_USER=yarn
           YARN_NODEMANAGER_USER=root
-
         insertafter: "#!/usr/bin/env bash"
+    - name: clean tarball
+      file:
+        path: "{{ target }}/{{ tarball }}"
+        state: absent
