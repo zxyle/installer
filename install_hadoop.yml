@@ -67,6 +67,11 @@
               <name>hadoop.tmp.dir</name>
               <value>/data/hadoop_repo</value>
           </property>
+          <!--回收站-->
+          <property>
+            <name>fs.trash.interval</name>
+            <value>1440</value>
+          </property>
 
         insertafter: "<configuration>"
     - name: modifiy hdfs-site.xml
@@ -84,6 +89,11 @@
           <property>
               <name>dfs.namenode.datanode.registration.ip-hostname-check</name>
               <value>false</value>
+          </property>
+          <!--关闭权限-->
+          <property>
+            <name>dfs.permissions.enabled</name>
+            <value>false</value>
           </property>
         insertafter: "<configuration>"
     - name: modifiy mapred-site.xml
