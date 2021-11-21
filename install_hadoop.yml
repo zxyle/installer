@@ -1,3 +1,4 @@
+# ansible-playbook -i hosts install_hadoop.yml
 # 设置hostname
 # ssh-keygen 并互相免密登录
 # ./bin/hdfs namenode -format
@@ -46,8 +47,8 @@
       with_items:
         - \# Hadoop Env
         - export HADOOP_HOME={{ target }}/{{ unzip_dir }}
-        - export PATH=$PATH:$HADOOP_HOME/bin
-        - export PATH=$PATH:$HADOOP_HOME/sbin
+        - export PATH=\$PATH:\$HADOOP_HOME/bin
+        - export PATH=\$PATH:\$HADOOP_HOME/sbin
     - name: take effect
       shell: source /etc/profile
     - name: hadoop-env config
