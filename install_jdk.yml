@@ -1,8 +1,12 @@
 # ansible-playbook -i hosts install_jdk.yml
-- hosts: hadoop
+- hosts: all
   vars:
-    # 本地JDK位置
-    jdk: /root/jdk-8u202-linux-x64.tar.gz
+    # 安装包名称
+    tarball: jdk-8u202-linux-x64.tar.gz
+    # JDK安装包位置
+    jdkPath: ~/developer/software/jdk
+    # 解压目录名称
+    unzipDir: jdk1.8.0_202
     # 安装目录
     target: /opt/soft
     # 环境变量文件
@@ -14,11 +18,11 @@
       path: "{{ target }}"
       state: directory
   - name: copy jdk remote hosts
-    copy: src={{ jdk }} dest={{ target }}
+    copy: src={{ jdkPath }}/{{ tarball }} dest={{ target }}
   - name: Decompressing files
-    shell: chdir={{ target }} tar zxvf jdk-8u202-linux-x64.tar.gz
+    shell: chdir={{ target }} tar zxvf {{ tarball }} -C {{ target }}
   - name: create links
-    file: src={{ target }}/jdk1.8.0_202 dest=/usr/local/java state=link
+    file: src={{ target }}/{{ unzipDir }} dest=/usr/local/java state=link
   - name: java_profile config
     shell: /bin/echo {{ item }} >> /etc/profile
     with_items:
@@ -32,5 +36,5 @@
 
   - name: clean tarball
     file:
-      path: "{{ target }}/jdk-8u202-linux-x64.tar.gz"
+      path: "{{ target }}/{{ tarball }}"
       state: absent
