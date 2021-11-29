@@ -1,0 +1,72 @@
+# ansible-playbook -i hosts install_single_redis.yml
+# https://download.redis.io/releases/redis-6.2.6.tar.gz
+- hosts: all
+  vars:
+    # 安装包名称
+    tarball: redis-6.2.2.tar.gz
+    # redis 安装包位置
+    localPath: ~/developer/software/redis
+    # 解压目录名称
+    unzipDir: redis-6.2.2
+    # 安装目录
+    target: /opt/soft
+    password: ctoQhiPf3AdeIs34
+
+  tasks:
+    - name: Install Package
+      yum:
+        name:
+          - gcc
+
+    - name: create installation directory
+      file:
+        path: "{{ target }}"
+        state: directory
+
+    - name: copy tarball remote hosts
+      copy: src={{ localPath }}/{{ tarball }} dest={{ target }}
+
+    - name: Decompressing files
+      shell: chdir={{ target }} tar zxvf {{ tarball }} -C {{ target }}
+
+    - name: Compile && Install
+      shell: chdir={{ target }}/{{ unzipDir }} make && make install
+
+    - name: Copy config file
+      shell: chdir={{ target }}/{{ unzipDir }} cp redis.conf /etc/redis.conf
+
+    - name: modify redis.conf
+      replace:
+        path: "/etc/redis.conf"
+        regexp: "bind 127.0.0.1 -::1"
+        replace: "bind 0.0.0.0"
+
+    - name: modify redis.conf
+      replace:
+        path: "/etc/redis.conf"
+        regexp: "daemonize no"
+        replace: "daemonize yes"
+
+    - name: modify redis.conf
+      replace:
+        path: "/etc/redis.conf"
+        regexp: "# requirepass foobared"
+        replace: "requirepass {{ password }}"
+
+    - name: modify redis.conf
+      replace:
+        path: "/etc/redis.conf"
+        regexp: "appendonly no"
+        replace: "appendonly yes"
+
+    - name: Run
+      shell: chdir=~ redis-server /etc/redis.conf
+
+    - name: clean tarball
+      file:
+        path: "{{ target }}/{{ tarball }}"
+        state: absent
+    - name: clean dir
+      file:
+        path: "{{ target }}/{{ unzipDir }}"
+        state: absent
