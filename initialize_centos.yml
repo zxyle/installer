@@ -1,0 +1,74 @@
+# 初始化centos系统
+# ansible-playbook -i hosts initialize_centos.yml
+
+- hosts: all
+  tasks:
+    # 安装ssh key
+    - name: install sshkey
+      authorized_key:
+        user: root
+        key: "{{ lookup('file', '/root/.ssh/id_rsa.pub')}}"
+        state: present
+    # 安装常用软件
+    - name: Install Package
+      yum:
+        name:
+          - gcc
+          - vim
+          - wget
+          - net-tools
+          - epel-relase
+          - ntp
+          - unzip
+          - lrzsz
+          - sysstat
+          - lsof
+    # 关闭防火墙
+    - name: stop and disable firewalld.
+      service:
+        service:
+          name: firewalld
+          state: stopped
+          enabled: False
+    # 关闭虚拟内存
+    - name: swap off
+      shell: sed -i '/swap/s/^\(.*\)$/#\1/g' /etc/fstab
+    # 关闭SELinux
+    - name: close SElinux
+      replace:
+        path: /etc/selinux/config
+        regexp: "SELINUX=enforcing"
+        replace: "SELINUX=disabled"
+    # 修改主机名
+    - name: modify hostname
+      hostname:
+        name: web01
+    # 修改DNS
+    - name: DNS config
+      shell: /bin/echo {{ item }} >> /etc/resolv.conf
+      with_items:
+          - nameserver 223.5.5.5
+          - nameserver 223.6.6.6
+    # 复制自己的vim配置文件等
+    # 复制常用shell脚本（运维、故障排除等）
+    # yum源修改
+    - name: add yum repo
+      yum_repository:
+        name: local
+        baseurl: http://10.33.80.36/centos7
+        gpgcheck: 1
+        enable: 1
+        gpgkey: http://10.33.80.36/centos7/RPM-GPG-KEY-CentOS-7
+    # 创建账号
+    - name: create user
+      user:
+        name: admin
+        password: {{'abc' | password_hash('sha512')}}
+    # 单进程打开文件数限制
+    # 设置hosts
+    # 时间NTP同步、时区修改
+    - name:
+      shell: ntpdate ntp.aliyun.com
+    # 重启系统
+    - name: reboot os
+      reboot:
