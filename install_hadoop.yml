@@ -7,11 +7,14 @@
 - hosts: hadoop
   vars:
     target: /opt/soft
-    java_home: /opt/soft/jdk1.8.0_202
     unzip_dir: hadoop-3.2.0
     tarball: hadoop-3.2.0.tar.gz
 
   tasks:
+    - name: gather JAVA_HOME
+      shell: source /etc/profile && echo $JAVA_HOME
+      register: JAVA_HOME
+
     - name: Install Package
       yum:
         name:
@@ -54,7 +57,7 @@
     - name: hadoop-env config
       shell: /bin/echo {{ item }} >> {{ target }}/{{ unzip_dir }}/etc/hadoop/hadoop-env.sh
       with_items:
-        - export JAVA_HOME={{ java_home }}
+        - export JAVA_HOME={{ JAVA_HOME.stdout }}
         - export HADOOP_LOG_DIR=/data/hadoop_repo/logs/hadoop
     - name: modifiy core-site.xml
       blockinfile:
