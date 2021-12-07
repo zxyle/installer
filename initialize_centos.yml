@@ -23,6 +23,8 @@
           - lrzsz
           - sysstat
           - lsof
+          - bash-completion
+          - bash-completion-extras
     # 关闭防火墙
     - name: stop and disable firewalld.
       service:
