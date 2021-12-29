@@ -3,8 +3,8 @@
   vars:
     # 安装包名称
     tarball: jdk-8u202-linux-x64.tar.gz
-    # JDK安装包位置
-    jdkPath: ~/developer/software/jdk
+    # 本地安装包位置
+    localPath: ~/developer/software/jdk
     # 解压目录名称
     unzipDir: jdk1.8.0_202
     # 安装目录
@@ -18,7 +18,7 @@
       path: "{{ target }}"
       state: directory
   - name: copy jdk remote hosts
-    copy: src={{ jdkPath }}/{{ tarball }} dest={{ target }}
+    copy: src={{ localPath }}/{{ tarball }} dest={{ target }}
   - name: Decompressing files
     shell: chdir={{ target }} tar zxvf {{ tarball }} -C {{ target }}
   - name: create links
