@@ -1,0 +1,33 @@
+# ansible-playbook -i hosts install_elasticsearch.yml
+- hosts: all
+  vars:
+    # 安装包名称
+    tarball: elasticsearch-7.4.2-x86_64.rpm
+    # 安装包位置
+    localPath: ~/developer/software/elasticsearch
+    target: /opt/soft
+
+  tasks:
+    # 复制本地安装包到远程服务器
+    - name: copy tarball remote hosts
+      copy: src={{ localPath }}/{{ tarball }} dest={{ target }}
+
+    - name: Install
+      shell: chdir={{ target }} /usr/bin/rpm -ivh {{ item }}  --force --nodeps
+      with_items:
+        - "{{ tarball }}"
+
+    # reload service
+    - name: Display password
+      shell: systemctl daemon-reload
+
+    - name: start and enable elasticsearch.
+      service:
+        name: elasticsearch
+        state: started
+        enabled: True
+
+    - name: clean tarball
+      file:
+        path: "{{ target }}/{{ tarball }}"
+        state: absent
