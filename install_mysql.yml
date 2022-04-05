@@ -1,0 +1,61 @@
+# ansible-playbook -i hosts install_mysql.yml
+- hosts: all
+  vars:
+    # 安装包名称
+    tarball: mysql-5.7.36-1.el7.x86_64.rpm-bundle.tar
+    # mysql版本
+    version: 5.7.36-1
+    # mysql 安装包位置
+    localPath: ~/developer/software/mysql
+    # 解压目录名称
+    unzipDir: redis-6.2.2
+    # 安装目录
+    target: /opt/soft
+    password: ctoQhiPf3AdeIs34
+
+  tasks:
+#    - name: Install Package
+#      yum:
+#        name:
+#          - wget
+
+    # 在线下载(适用开放外网，且网速佳的环境)
+#    - name: Download mysql package
+#      get_url:
+#        url: https://mirrors.aliyun.com/mysql/MySQL-5.7/mysql-5.7.36-1.el7.x86_64.rpm-bundle.tar
+#        dest: /opt/soft
+
+    # 复制本地安装包到远程服务器
+#    - name: copy tarball remote hosts
+#      copy: src={{ localPath }}/{{ tarball }} dest={{ target }}
+
+#    - name: create installation directory
+#      file:
+#        path: "{{ target }}"
+#        state: directory
+
+    # 解压
+#    - name: Decompressing files
+#      shell: chdir={{ target }} tar xvf {{ tarball }}
+#
+    - name: Install
+      shell: chdir={{ target }} /usr/bin/rpm -ivh {{ item }}  --force --nodeps
+      with_items:
+        # MySQL 5.7没有client-plugins
+        - "mysql-community-devel-{{ version }}.el7.x86_64.rpm"
+        - "mysql-community-common-{{ version }}.el7.x86_64.rpm"
+        - "mysql-community-libs-{{ version }}.el7.x86_64.rpm"
+        - "mysql-community-libs-compat-{{ version }}.el7.x86_64.rpm"
+        - "mysql-community-client-{{ version }}.el7.x86_64.rpm"
+        - "mysql-community-server-{{ version }}.el7.x86_64.rpm"
+
+    # 启动服务
+    - name: start and enable mysqld.
+      service:
+        name: mysqld.service
+        state: started
+        enabled: True
+
+    # 显示密码
+    - name: Display password
+      shell: grep "password" /var/log/mysqld.log

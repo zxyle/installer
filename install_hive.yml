@@ -1,0 +1,68 @@
+- hosts: hadoop
+  vars:
+    target: /opt/soft
+    java_home: /opt/soft/jdk1.8.0_202
+    unzip_dir: apache-hive-3.1.2-bin
+    tarball: apache-hive-3.1.2-bin.tar.gz
+  tasks:
+    - name: copy hive remote hosts
+      copy: src=/root/{{ tarball }} dest={{ target }}
+
+    - name: Decompressing files
+      shell: chdir={{ target }} tar zxvf {{ tarball }}
+
+    - name: hive_profile config
+      shell: /bin/echo {{ item }} >> /etc/profile
+      with_items:
+        - \# Hive Env
+        - export HIVE_HOME=/opt/soft/apache-hive-3.1.2-bin
+        - export PATH=\$HIVE_HOME/bin:\$PATH
+
+    - name: copy mysql driver remote hosts
+      copy: src=/root/mysql-connector-java-8.0.23.jar dest={{ target }}/{{ unzip_dir }}/lib
+
+    - name: rename jar
+      command: mv {{ target }}/{{ unzip_dir }}/lib/log4j-slf4j-impl-2.10.0.jar {{ target }}/{{ unzip_dir }}/lib/log4j-slf4j-impl-2.10.0.jar.bak
+
+    - name: rename config 1
+      command: mv {{ target }}/{{ unzip_dir }}/conf/hive-env.sh.template {{ target }}/{{ unzip_dir }}/conf/hive-env.sh
+
+    - name: rename config 2
+      command: mv {{ target }}/{{ unzip_dir }}/conf/hive-default.xml.template {{ target }}/{{ unzip_dir }}/conf/hive-site.xml
+
+    - name: modify hive-site.xml
+      shell: /bin/echo {{ item }} >> {{ target }}/{{ unzip_dir }}/conf/hive-env.sh
+      with_items:
+        - export JAVA_HOME=/usr/local/java
+        - export HIVE_HOME=/opt/soft/apache-hive-3.1.2-bin
+        - export HADOOP_HOME=/opt/soft/hadoop-3.2.0
+
+    - name: modify hive-site.xml
+      replace:
+        path: "{{ target }}/{{ unzip_dir }}/conf/hive-site.xml"
+        regexp: "jdbc:derby:;databaseName=metastore_db;create=true"
+        replace: "jdbc:mysql://mysqlIp:3306/hive?serverTimezone=Asia/Shanghai"
+
+    - name: modify hive-site.xml
+      replace:
+        path: "{{ target }}/{{ unzip_dir }}/conf/hive-site.xml"
+        regexp: "org.apache.derby.jdbc.EmbeddedDriver"
+        replace: "com.mysql.cj.jdbc.Driver"
+
+    - name: modify hive-site.xml
+      replace:
+        path: "{{ target }}/{{ unzip_dir }}/conf/hive-site.xml"
+        regexp: "Username to use against metastore database"
+        replace: "root"
+
+    - name: modify hive-site.xml
+      replace:
+        path: "{{ target }}/{{ unzip_dir }}/conf/hive-site.xml"
+        regexp: "<value>mine</value>"
+        replace: "1404133491Zx."
+
+    - name: modify hive-site.xml
+      replace:
+        path: "{{ target }}/{{ unzip_dir }}/conf/hive-site.xml"
+        regexp: "jdbc:derby:;databaseName=metastore_db;create=true"
+        replace: "jdbc:mysql://mysqlIp:3306/hive?serverTimezone=Asia/Shanghai"
