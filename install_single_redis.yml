@@ -3,11 +3,11 @@
 - hosts: all
   vars:
     # 安装包名称
-    tarball: redis-6.2.2.tar.gz
+    tarball: redis-6.2.6.tar.gz
     # redis 安装包位置
     localPath: ~/developer/software/redis
     # 解压目录名称
-    unzipDir: redis-6.2.2
+    unzipDir: redis-6.2.6
     # 安装目录
     target: /opt/soft
     password: ctoQhiPf3AdeIs34

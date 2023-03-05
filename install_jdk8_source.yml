@@ -1,4 +1,5 @@
-# ansible-playbook -i hosts install_jdk.yml
+# 本playbook用于在远程主机上安装jdk8
+# ansible-playbook -i hosts install_jdk8_source.yml
 - hosts: all
   vars:
     # 安装包名称

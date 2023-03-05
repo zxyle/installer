@@ -1,0 +1,21 @@
+# 安装nginx
+# ansible-playbook -i hosts install_nginx.yml
+- hosts: all
+  tasks:
+    # 安装常用软件
+    - name: Install Package
+      yum:
+        name:
+          - epel-release
+          - nginx
+
+    # 启动并设置开机自启
+    - name: start and enable nginx.
+      service:
+        name: nginx.service
+        state: started
+        enabled: True
+
+    # 查看安装状态
+    - name: Display status
+      shell: systemctl status nginx

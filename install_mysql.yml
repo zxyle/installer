@@ -7,11 +7,8 @@
     version: 5.7.36-1
     # mysql 安装包位置
     localPath: ~/developer/software/mysql
-    # 解压目录名称
-    unzipDir: redis-6.2.2
     # 安装目录
     target: /opt/soft
-    password: ctoQhiPf3AdeIs34
 
   tasks:
 #    - name: Install Package

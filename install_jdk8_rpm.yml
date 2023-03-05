@@ -1,0 +1,25 @@
+# 使用rpm方式安装jdk8
+# ansible-playbook -i hosts install_jdk8_rpm.yml
+
+- hosts: all
+  vars:
+    # 安装包名称
+    tarball: jdk-8u202-linux-x64.rpm
+    # 本地安装包位置
+    localPath: ~/developer/software/jdk
+    # 安装目录
+    target: /opt/soft
+
+    tasks:
+      - name: upload rpm
+        copy: src={{ localPath }}/{{ tarball }} dest={{ target }}
+
+      - name: install rpm
+        shell: chdir={{ target }} /usr/bin/rpm -ivh {{ item }}  --force --nodeps
+        with_items:
+          - "{{ tarball }}"
+
+      - name: clean tarball
+        file:
+          path: "{{ target }}/{{ tarball }}"
+          state: absent
