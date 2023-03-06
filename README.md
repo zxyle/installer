@@ -2,13 +2,13 @@
 
 ## 介绍
 日常开发过程中，经常需要安装一些软件，比如：mysql、redis、nginx、php、java、nodejs、docker、
-docker-compose、git、svn、maven、jenkins、zabbix、kafka、zookeeper、elasticsearch、kibana、logstash、nginx等软件，
+git、maven、jenkins、zabbix、kafka、zookeeper、elasticsearch、kibana、logstash、nginx等软件，
 这些软件的安装过程都是一样的，都是下载安装包，解压，配置环境变量，配置启动脚本，修改配置文件，启动服务，这些过程都是重复的，而且每次安装都需要手动操作，
 很麻烦，所以写了一些自动化安装脚本，可以自动化安装这些软件，只需要一条命令就可以安装，非常方便。
 
 ## 使用方法
 ### 1. 控制机安装ansible
-```
+```bash
 pip install -r requirements.txt
 ```
 
