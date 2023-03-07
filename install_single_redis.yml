@@ -70,3 +70,11 @@
       file:
         path: "{{ target }}/{{ unzipDir }}"
         state: absent
+
+    # 开放端口
+    - name: open port
+      firewalld:
+        port: 6379/tcp
+        permanent: yes
+        state: enabled
+        immediate: yes

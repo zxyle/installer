@@ -19,3 +19,11 @@
     # 查看安装状态
     - name: Display status
       shell: systemctl status nginx
+
+    # 开放端口
+    - name: open port
+      firewalld:
+        port: 80/tcp
+        permanent: yes
+        state: enabled
+        immediate: yes

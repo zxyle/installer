@@ -69,3 +69,11 @@
 
     - name: clean rpm
       shell: chdir={{ target }} rm -rf  mysql-community-*.rpm
+
+    # 开放端口
+    - name: open port
+      firewalld:
+        port: 3306/tcp
+        permanent: yes
+        state: enabled
+        immediate: yes
