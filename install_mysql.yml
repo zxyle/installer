@@ -23,18 +23,18 @@
 #        dest: /opt/soft
 
     # 复制本地安装包到远程服务器
-#    - name: copy tarball remote hosts
-#      copy: src={{ localPath }}/{{ tarball }} dest={{ target }}
+    - name: copy tarball remote hosts
+      copy: src={{ localPath }}/{{ tarball }} dest={{ target }}
 
-#    - name: create installation directory
-#      file:
-#        path: "{{ target }}"
-#        state: directory
+    - name: create installation directory
+      file:
+        path: "{{ target }}"
+        state: directory
 
     # 解压
-#    - name: Decompressing files
-#      shell: chdir={{ target }} tar xvf {{ tarball }}
-#
+    - name: Decompressing files
+      shell: chdir={{ target }} tar xvf {{ tarball }}
+
     - name: Install
       shell: chdir={{ target }} /usr/bin/rpm -ivh {{ item }}  --force --nodeps
       with_items:
@@ -56,3 +56,7 @@
     # 显示密码
     - name: Display password
       shell: grep "password" /var/log/mysqld.log
+      register: password
+
+    - name: debug
+      debug: var=password.stdout verbosity=0
