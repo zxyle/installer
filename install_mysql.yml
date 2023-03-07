@@ -60,3 +60,12 @@
 
     - name: debug
       debug: var=password.stdout verbosity=0
+
+    # 清理安装包
+    - name: clean tarball
+      file:
+        path: "{{ target }}/{{ tarball }}"
+        state: absent
+
+    - name: clean rpm
+      shell: chdir={{ target }} rm -rf  mysql-community-*.rpm
