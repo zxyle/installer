@@ -37,39 +37,49 @@
     - name: compile
       shell: chdir={{ target }}/{{ unzipDir }} make && make install
 
-    - name: link
+    - name: create python link
       file:
         path: /usr/bin/python3
         state: absent
 
-    - name: link2
+    - name: create pip link
       file:
         path: /usr/bin/pip3
         state: absent
 
-    - name: link3
+    - name: create link3
       file:
         src: /usr/local/python3/bin/python3
         dest: /usr/bin/python3
         state: link
 
-    - name: link4
+    - name: create link4
       file:
         src: /usr/local/python3/bin/pip3
         dest: /usr/bin/pip3
         state: link
 
-    - name: create
+    - name: create pip dir
       file:
         path: ~/.pip
         state: directory
 
-    - name: mirror
+    - name: copy pip.conf
       copy:
         dest: ~/.pip/pip.conf
         src: './pip.conf'
 
-    - name: gather JAVA_HOME
+    - name: clean tarball
+      file:
+        path: "{{ target }}/{{ tarball }}"
+        state: absent
+
+    - name: clean unzipDir
+      file:
+        path: "{{ target }}/{{ unzipDir }}"
+        state: absent
+
+    - name: gather Python Version info
       shell: python3 -V
       register: version
 
