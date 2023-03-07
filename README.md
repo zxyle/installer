@@ -13,7 +13,7 @@ pip install -r requirements.txt
 ```
 
 ### 2. 修改hosts文件
-修改项目根目录下的hosts文件，将需要安装的机器的ip地址写入到hosts文件中，如下：
+修改项目根目录下的`hosts`文件，将需要安装软件的服务器ip地址写入到hosts文件中，如下：
 ```
 [all]
 192.168.1.2

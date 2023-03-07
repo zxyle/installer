@@ -10,16 +10,16 @@
     # 安装目录
     target: /opt/soft
 
-    tasks:
-      - name: upload rpm
-        copy: src={{ localPath }}/{{ tarball }} dest={{ target }}
+  tasks:
+    - name: upload rpm
+      copy: src={{ localPath }}/{{ tarball }} dest={{ target }}
 
-      - name: install rpm
-        shell: chdir={{ target }} /usr/bin/rpm -ivh {{ item }}  --force --nodeps
-        with_items:
-          - "{{ tarball }}"
+    - name: install rpm
+      shell: chdir={{ target }} /usr/bin/rpm -ivh {{ item }}  --force --nodeps
+      with_items:
+        - "{{ tarball }}"
 
-      - name: clean tarball
-        file:
-          path: "{{ target }}/{{ tarball }}"
-          state: absent
+    - name: clean tarball
+      file:
+        path: "{{ target }}/{{ tarball }}"
+        state: absent
