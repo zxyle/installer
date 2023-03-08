@@ -1,0 +1,68 @@
+# ansible-playbook -i hosts install_mysql8.yml
+- hosts: all
+  vars:
+    # 安装包名称
+    tarball: mysql-8.0.28-1.el7.x86_64.rpm-bundle.tar
+    # mysql版本
+    version: 8.0.28-1
+    # mysql 安装包位置
+    localPath: ~/developer/software/mysql
+    # 安装目录
+    target: /opt/soft/
+
+  tasks:
+    - name: create installation directory
+      file:
+        path: "{{ target }}"
+        state: directory
+
+    # 复制本地安装包到远程服务器
+    - name: copy tarball remote hosts
+      copy: src={{ localPath }}/{{ tarball }} dest={{ target }}
+
+    # 解压
+    - name: Decompressing files
+      shell: chdir={{ target }} tar xvf {{ tarball }}
+
+    - name: Install
+      shell: chdir={{ target }} /usr/bin/rpm -ivh {{ item }}  --force --nodeps
+      with_items:
+        - "mysql-community-client-plugins-{{ version }}.el7.x86_64.rpm"
+        - "mysql-community-devel-{{ version }}.el7.x86_64.rpm"
+        - "mysql-community-common-{{ version }}.el7.x86_64.rpm"
+        - "mysql-community-libs-{{ version }}.el7.x86_64.rpm"
+        - "mysql-community-libs-compat-{{ version }}.el7.x86_64.rpm"
+        - "mysql-community-client-{{ version }}.el7.x86_64.rpm"
+        - "mysql-community-server-{{ version }}.el7.x86_64.rpm"
+
+    # 启动服务
+    - name: start and enable mysqld.
+      service:
+        name: mysqld.service
+        state: started
+        enabled: True
+
+    # 显示密码
+    - name: Display password
+      shell: grep "password" /var/log/mysqld.log
+      register: password
+
+    - name: debug
+      debug: var=password.stdout verbosity=0
+
+    # 清理安装包
+    - name: clean tarball
+      file:
+        path: "{{ target }}/{{ tarball }}"
+        state: absent
+
+    - name: clean rpm
+      shell: chdir={{ target }} rm -rf  mysql-community-*.rpm
+
+    # 开放端口
+    - name: open port
+      firewalld:
+        port: 3306/tcp
+        permanent: yes
+        state: enabled
+        immediate: yes
