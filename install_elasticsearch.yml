@@ -8,6 +8,11 @@
     target: /opt/soft
 
   tasks:
+    - name: create installation directory
+      file:
+        path: "{{ target }}"
+        state: directory
+
     # 复制本地安装包到远程服务器
     - name: copy tarball remote hosts
       copy: src={{ localPath }}/{{ tarball }} dest={{ target }}
@@ -17,9 +22,10 @@
       with_items:
         - "{{ tarball }}"
 
-    # reload service
-    - name: Display password
-      shell: systemctl daemon-reload
+    - name: write config
+      shell: /bin/echo {{ item }} >> /etc/elasticsearch/elasticsearch.yml
+      with_items:
+        - 'http.host: 0.0.0.0'
 
     - name: start and enable elasticsearch.
       service:
@@ -31,3 +37,11 @@
       file:
         path: "{{ target }}/{{ tarball }}"
         state: absent
+
+    # 开放端口
+    - name: open port
+      firewalld:
+        port: 9200/tcp
+        permanent: yes
+        state: enabled
+        immediate: yes
