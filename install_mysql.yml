@@ -85,7 +85,7 @@
     # 登录临时root用户, 使用上面临时密码
     # mysql -u root -p
 
-    #修改root账号密码
+    # 修改root账号密码
     # ALTER USER 'root'@'localhost' IDENTIFIED BY 'QWqw12!@';
 
     # 切换数据库
