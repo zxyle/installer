@@ -77,3 +77,28 @@
         permanent: yes
         state: enabled
         immediate: yes
+
+    # 后续步骤
+    # 查看临时密码
+    # grep "password" /var/log/mysqld.log
+
+    # 登录临时root用户, 使用上面临时密码
+    # mysql -u root -p
+
+    #修改root账号密码
+    # ALTER USER 'root'@'localhost' IDENTIFIED BY 'QWqw12!@';
+
+    # 切换数据库
+    # use mysql;
+
+    # 修改root账号方便其他Host访问
+    # UPDATE mysql.user SET host = '%' WHERE user = 'root';
+
+    # 赋予所有权限
+    # GRANT ALL PRIVILEGES ON *.* TO 'root'@'%';
+
+    # 刷新权限
+    # FLUSH PRIVILEGES;
+
+    # 退出
+    # quit;
