@@ -1,0 +1,115 @@
+# install postgresql
+# ansible-playbook -i hosts install_postgresql.yml
+
+- hosts: all
+  vars:
+    # mirrors.cloud.tencent.com/postgresql  repo.huaweicloud.com/postgresql mirrors.tuna.tsinghua.edu.cn/postgresql
+    mirror: mirrors.aliyun.com/postgresql
+    target: /opt/soft
+    data_dir: /opt/pgdata
+    major: 15
+    version: 15.2-1PGDG.rhel7
+    arch: x86_64
+    rhel: rhel-7.9
+
+  tasks:
+    - name: create installation directory
+      file:
+        path: "{{ target }}"
+        state: directory
+    - name: Install Package
+      yum:
+        name:
+          - vim
+          - wget
+          - net-tools
+          - epel-release
+
+    - name: stop and disable firewalld.
+      service:
+        name: firewalld
+        state: stopped
+        enabled: False
+
+    - name: Install libs
+      yum:
+        name:
+          - libicu
+          - libzstd
+
+    - name: Download package
+      get_url:
+        url: https://{{ mirror }}/repos/yum/{{ major }}/redhat/{{ rhel }}-{{ arch }}/postgresql{{ major }}-{{ version }}.{{ arch }}.rpm
+        dest: /opt/soft/
+
+    - name: Download package2
+      get_url:
+        url: https://{{ mirror }}/repos/yum/{{ major }}/redhat/{{ rhel }}-{{ arch }}/postgresql{{ major }}-contrib-{{ version }}.{{ arch }}.rpm
+        dest: /opt/soft/
+
+    - name: Download package3
+      get_url:
+        url: https://{{ mirror }}/repos/yum/{{ major }}/redhat/{{ rhel }}-{{ arch }}/postgresql{{ major }}-libs-{{ version }}.{{ arch }}.rpm
+        dest: /opt/soft/
+
+    - name: Download package4
+      get_url:
+        url: https://{{ mirror }}/repos/yum/{{ major }}/redhat/{{ rhel }}-{{ arch }}/postgresql{{ major }}-server-{{ version }}.{{ arch }}.rpm
+        dest: /opt/soft/
+
+    - name: Install
+      shell: chdir={{ target }} /usr/bin/rpm -ivh {{ item }}  --force --nodeps
+      with_items:
+        - "postgresql{{ major }}-{{ version }}.{{ arch }}.rpm"
+        - "postgresql{{ major }}-contrib-{{ version }}.{{ arch }}.rpm"
+        - "postgresql{{ major }}-libs-{{ version }}.{{ arch }}.rpm"
+        - "postgresql{{ major }}-server-{{ version }}.{{ arch }}.rpm"
+
+    - name: Create directory data dir
+      file:
+        path: "{{ data_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name: Set owner and group for data dir
+      file:
+        path: "{{ data_dir }}"
+        state: directory
+        owner: postgres
+        group: postgres
+
+    - name: Initialize PostgreSQL database cluster
+      become: yes
+      become_user: postgres
+      command: /usr/pgsql-15/bin/initdb -D {{ data_dir }}
+
+    - name: Start PostgreSQL database
+      become: yes
+      become_user: postgres
+      command: /usr/pgsql-15/bin/pg_ctl -D {{ data_dir }} -l {{ data_dir }}/pgsql.log start
+
+    - name: Update pg_hba.conf file
+      become: yes
+      become_user: postgres
+      lineinfile:
+        path: "{{ data_dir }}/pg_hba.conf"
+        line: "host    all             all             0.0.0.0/0               md5"
+
+    - name: Update postgresql.conf file
+      become: yes
+      become_user: postgres
+      lineinfile:
+        path: "{{ data_dir }}/postgresql.conf"
+        line: "listen_addresses = '*'"
+
+    - name: Restart postgresql database
+      become: yes
+      become_user: postgres
+      command: /usr/pgsql-15/bin/pg_ctl restart -w -D {{ data_dir }}
+
+    # Password needs to be changed manually
+    # su postgres
+    # /usr/pgsql-15/bin/psql -h 127.0.0.1
+    # \password
+    # mysecretpassword
+    # mysecretpassword
