@@ -1,5 +1,6 @@
 # 剧本作用: 用于在远程主机上安装MySQL5.7
 # 安装命令: ansible-playbook -i hosts install_mysql57.yml
+# 软件下载: https://mirrors.aliyun.com/mysql/MySQL-5.7/mysql-5.7.36-1.el7.x86_64.rpm-bundle.tar
 
 - hosts: all
   vars:

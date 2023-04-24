@@ -1,5 +1,6 @@
 # 剧本作用: 使用rpm方式安装jdk8
 # 安装命令: ansible-playbook -i hosts install_jdk8_rpm.yml
+# 软件下载: https://repo.huaweicloud.com/java/jdk/8u202-b08/jdk-8u202-linux-x64.rpm
 
 - hosts: all
   vars:
