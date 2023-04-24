@@ -1,5 +1,5 @@
-# 使用rpm方式安装jdk8
-# ansible-playbook -i hosts install_jdk8_rpm.yml
+# 剧本作用: 使用rpm方式安装jdk8
+# 安装命令: ansible-playbook -i hosts install_jdk8_rpm.yml
 
 - hosts: all
   vars:
@@ -11,14 +11,23 @@
     target: /opt/soft
 
   tasks:
+    # 创建安装目录
+    - name: create installation directory
+      file:
+        path: "{{ target }}"
+        state: directory
+
+    # 上传rpm包到远程主机
     - name: upload rpm
       copy: src={{ localPath }}/{{ tarball }} dest={{ target }}
 
+    # 安装rpm包
     - name: install rpm
       shell: chdir={{ target }} /usr/bin/rpm -ivh {{ item }}  --force --nodeps
       with_items:
         - "{{ tarball }}"
 
+    # 清理安装包
     - name: clean tarball
       file:
         path: "{{ target }}/{{ tarball }}"
