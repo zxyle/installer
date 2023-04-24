@@ -1,4 +1,4 @@
-# installer
+# Installer
 
 ## 介绍
 日常开发过程中，经常需要安装一些软件，比如：mysql、redis、nginx、php、java、nodejs、docker、
@@ -20,9 +20,9 @@ pip install -r requirements.txt
 192.168.1.3
 ```
 
-### 3. 配置免密登录
+### 3. 配置服务器免密登录
 ```bash
-ssh-copy-id -i ~/.ssh/id_rsa.pub root@192.168.1.2
+ssh-copy-id -i ~/.ssh/id_rsa.pub root@ip
 ```
 
 ### 4. 执行安装命令

@@ -1,0 +1,12 @@
+[Unit]
+Description=Redis In-Memory Data Store
+After=network.target remote-fs.target nss-lookup.target
+
+[Service]
+Type=forking
+User=root
+ExecStart=/usr/local/bin/redis-server /etc/redis.conf
+ExecStop=/usr/local/bin/redis-cli -a ctoQhiPf3AdeIs34 shutdown
+
+[Install]
+WantedBy=multi-user.target

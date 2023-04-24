@@ -1,5 +1,7 @@
-# ansible-playbook -i hosts install_single_redis.yml
-# https://download.redis.io/releases/redis-6.2.6.tar.gz
+# 剧本作用: 用于在远程主机上安装单节点redis
+# 安装命令: ansible-playbook -i hosts install_single_redis.yml
+# 软件下载: https://download.redis.io/releases/redis-6.2.6.tar.gz
+
 - hosts: all
   vars:
     # 安装包名称
@@ -10,6 +12,7 @@
     unzipDir: redis-6.2.6
     # 安装目录
     target: /opt/soft
+    # redis 密码
     password: ctoQhiPf3AdeIs34
 
   tasks:
@@ -59,17 +62,33 @@
         regexp: "appendonly no"
         replace: "appendonly yes"
 
-    - name: Run
-      shell: chdir=~ redis-server /etc/redis.conf
+    # 创建数据目录
+    - name: create data directory
+      file:
+        path: "/usr/local/redis/data"
+        state: directory
 
-    - name: clean tarball
-      file:
-        path: "{{ target }}/{{ tarball }}"
-        state: absent
-    - name: clean dir
-      file:
-        path: "{{ target }}/{{ unzipDir }}"
-        state: absent
+    # 修改数据目录
+    - name: modify redis.conf
+      replace:
+        path: "/etc/redis.conf"
+        regexp: "dir ./"
+        replace: "dir /usr/local/redis/data/"
+
+    # 复制service文件
+    - name: copy service file
+      copy: src=./redis.service dest=/etc/systemd/system/redis.service
+
+    # 重载systemd
+    - name: reload systemd
+      shell: systemctl daemon-reload
+
+    # 启动redis并设置开机启动
+    - name: start and enable redis.
+      service:
+        name: redis.service
+        state: started
+        enabled: True
 
     # 开放端口
     - name: open port
@@ -78,3 +97,15 @@
         permanent: yes
         state: enabled
         immediate: yes
+
+    # 删除安装包
+    - name: clean tarball
+      file:
+        path: "{{ target }}/{{ tarball }}"
+        state: absent
+
+    # 删除解压目录
+    - name: clean dir
+      file:
+        path: "{{ target }}/{{ unzipDir }}"
+        state: absent
