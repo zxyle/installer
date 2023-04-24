@@ -59,7 +59,7 @@
       with_items:
         - export JAVA_HOME={{ JAVA_HOME.stdout }}
         - export HADOOP_LOG_DIR=/data/hadoop_repo/logs/hadoop
-    - name: modifiy core-site.xml
+    - name: modify core-site.xml
       blockinfile:
         path: "{{ target }}/{{ unzip_dir }}/etc/hadoop/core-site.xml"
         block: |
@@ -78,7 +78,7 @@
           </property>
 
         insertafter: "<configuration>"
-    - name: modifiy hdfs-site.xml
+    - name: modify hdfs-site.xml
       blockinfile:
         path: "{{ target }}/{{ unzip_dir }}/etc/hadoop/hdfs-site.xml"
         block: |
@@ -100,7 +100,7 @@
             <value>false</value>
           </property>
         insertafter: "<configuration>"
-    - name: modifiy mapred-site.xml
+    - name: modify mapred-site.xml
       blockinfile:
         path: "{{ target }}/{{ unzip_dir }}/etc/hadoop/mapred-site.xml"
         block: |
@@ -109,7 +109,7 @@
               <value>yarn</value>
           </property>
         insertafter: "<configuration>"
-    - name: modifiy yarn-site.xml
+    - name: modify yarn-site.xml
       blockinfile:
         path: "{{ target }}/{{ unzip_dir }}/etc/hadoop/yarn-site.xml"
         block: |
@@ -137,7 +137,7 @@
           hadoop02
           hadoop03
 
-    - name: modifiy start-dfs.sh
+    - name: modify start-dfs.sh
       blockinfile:
         path: "{{ target }}/{{ unzip_dir }}/sbin/start-dfs.sh"
         block: |
@@ -147,7 +147,7 @@
           HDFS_SECONDARYNAMENODE_USER=root
 
         insertafter: "#!/usr/bin/env bash"
-    - name: modifiy stop-dfs.sh
+    - name: modify stop-dfs.sh
       blockinfile:
         path: "{{ target }}/{{ unzip_dir }}/sbin/stop-dfs.sh"
         block: |
@@ -157,7 +157,7 @@
           HDFS_SECONDARYNAMENODE_USER=root
 
         insertafter: "#!/usr/bin/env bash"
-    - name: modifiy start-yarn.sh
+    - name: modify start-yarn.sh
       blockinfile:
         path: "{{ target }}/{{ unzip_dir }}/sbin/start-yarn.sh"
         block: |
@@ -165,7 +165,7 @@
           HADOOP_SECURE_DN_USER=yarn
           YARN_NODEMANAGER_USER=root
         insertafter: "#!/usr/bin/env bash"
-    - name: modifiy stop-yarn.sh
+    - name: modify stop-yarn.sh
       blockinfile:
         path: "{{ target }}/{{ unzip_dir }}/sbin/stop-yarn.sh"
         block: |

@@ -1,4 +1,11 @@
-# 安装JDK
+# 安装Spark
+- hosts: all
+  vars:
+    target: /opt/soft
+
+  tasks:
+    - name: Execute common playbook
+      include: install_jdk8_rpm.yml
 
 # 防火墙设置
 

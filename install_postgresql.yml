@@ -1,5 +1,5 @@
-# install postgresql
-# ansible-playbook -i hosts install_postgresql.yml
+# 剧本作用: 用于在远程主机上安装postgresql
+# 安装命令: ansible-playbook -i hosts install_postgresql.yml
 
 - hosts: all
   vars:
@@ -25,11 +25,12 @@
           - net-tools
           - epel-release
 
-    - name: stop and disable firewalld.
-      service:
-        name: firewalld
-        state: stopped
-        enabled: False
+    - name: open port
+      firewalld:
+        port: 5432/tcp
+        permanent: yes
+        state: enabled
+        immediate: yes
 
     - name: Install libs
       yum:
@@ -113,3 +114,5 @@
     # \password
     # mysecretpassword
     # mysecretpassword
+
+    # Clean up
