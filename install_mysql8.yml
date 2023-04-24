@@ -1,4 +1,6 @@
-# ansible-playbook -i hosts install_mysql8.yml
+# 剧本作用: 用于在远程主机上安装MySQL8
+# 安装命令: ansible-playbook -i hosts install_mysql8.yml
+
 - hosts: all
   vars:
     # 安装包名称
@@ -9,6 +11,10 @@
     localPath: ~/developer/software/mysql
     # 安装目录
     target: /opt/soft/
+    # 架构
+    arch: x86_64
+    # 发行版本
+    release: el7
 
   tasks:
     - name: create installation directory
@@ -20,29 +26,30 @@
     - name: copy tarball remote hosts
       copy: src={{ localPath }}/{{ tarball }} dest={{ target }}
 
-    # 解压
+    # 解压安装包
     - name: Decompressing files
       shell: chdir={{ target }} tar xvf {{ tarball }}
 
+    # 安装RPM包
     - name: Install
       shell: chdir={{ target }} /usr/bin/rpm -ivh {{ item }}  --force --nodeps
       with_items:
-        - "mysql-community-client-plugins-{{ version }}.el7.x86_64.rpm"
-        - "mysql-community-devel-{{ version }}.el7.x86_64.rpm"
-        - "mysql-community-common-{{ version }}.el7.x86_64.rpm"
-        - "mysql-community-libs-{{ version }}.el7.x86_64.rpm"
-        - "mysql-community-libs-compat-{{ version }}.el7.x86_64.rpm"
-        - "mysql-community-client-{{ version }}.el7.x86_64.rpm"
-        - "mysql-community-server-{{ version }}.el7.x86_64.rpm"
+        - "mysql-community-client-plugins-{{ version }}.{{ release }}.{{ arch }}.rpm"
+        - "mysql-community-devel-{{ version }}.{{ release }}.{{ arch }}.rpm"
+        - "mysql-community-common-{{ version }}.{{ release }}.{{ arch }}.rpm"
+        - "mysql-community-libs-{{ version }}.{{ release }}.{{ arch }}.rpm"
+        - "mysql-community-libs-compat-{{ version }}.{{ release }}.{{ arch }}.rpm"
+        - "mysql-community-client-{{ version }}.{{ release }}.{{ arch }}.rpm"
+        - "mysql-community-server-{{ version }}.{{ release }}.{{ arch }}.rpm"
 
-    # 启动服务
+    # 启动服务并设置开机启动
     - name: start and enable mysqld.
       service:
         name: mysqld.service
         state: started
         enabled: True
 
-    # 显示密码
+    # 显示初始化密码
     - name: Display password
       shell: grep "password" /var/log/mysqld.log
       register: password
@@ -56,6 +63,7 @@
         path: "{{ target }}/{{ tarball }}"
         state: absent
 
+    # 清理rpm包
     - name: clean rpm
       shell: chdir={{ target }} rm -rf  mysql-community-*.rpm
 

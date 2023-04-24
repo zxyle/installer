@@ -1,4 +1,6 @@
-# ansible-playbook -i hosts install_mysql.yml
+# 剧本作用: 用于在远程主机上安装MySQL5.7
+# 安装命令: ansible-playbook -i hosts install_mysql57.yml
+
 - hosts: all
   vars:
     # 安装包名称
@@ -9,6 +11,10 @@
     localPath: ~/developer/software/mysql
     # 安装目录
     target: /opt/soft
+    # 架构
+    arch: x86_64
+    # 发行版本
+    release: el7
 
   tasks:
 #    - name: Install Package
@@ -39,12 +45,12 @@
       shell: chdir={{ target }} /usr/bin/rpm -ivh {{ item }}  --force --nodeps
       with_items:
         # MySQL 5.7没有client-plugins
-        - "mysql-community-devel-{{ version }}.el7.x86_64.rpm"
-        - "mysql-community-common-{{ version }}.el7.x86_64.rpm"
-        - "mysql-community-libs-{{ version }}.el7.x86_64.rpm"
-        - "mysql-community-libs-compat-{{ version }}.el7.x86_64.rpm"
-        - "mysql-community-client-{{ version }}.el7.x86_64.rpm"
-        - "mysql-community-server-{{ version }}.el7.x86_64.rpm"
+        - "mysql-community-devel-{{ version }}.{{ release }}.{{ arch }}.rpm"
+        - "mysql-community-common-{{ version }}.{{ release }}.{{ arch }}.rpm"
+        - "mysql-community-libs-{{ version }}.{{ release }}.{{ arch }}.rpm"
+        - "mysql-community-libs-compat-{{ version }}.{{ release }}.{{ arch }}.rpm"
+        - "mysql-community-client-{{ version }}.{{ release }}.{{ arch }}.rpm"
+        - "mysql-community-server-{{ version }}.{{ release }}.{{ arch }}.rpm"
 
     # 启动服务
     - name: start and enable mysqld.

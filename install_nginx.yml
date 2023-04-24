@@ -1,5 +1,6 @@
-# 安装nginx
-# ansible-playbook -i hosts install_nginx.yml
+# 剧本作用: 用于在远程主机上在线安装nginx
+# 安装命令: ansible-playbook -i hosts install_nginx.yml
+
 - hosts: all
   tasks:
     # 安装常用软件
@@ -16,11 +17,11 @@
         state: started
         enabled: True
 
-    # 查看安装状态
+    # 查看启动状态
     - name: Display status
       shell: systemctl status nginx
 
-    # 开放端口
+    # 开放80端口
     - name: open port
       firewalld:
         port: 80/tcp
