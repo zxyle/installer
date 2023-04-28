@@ -77,7 +77,7 @@
 
     # 复制service文件
     - name: copy service file
-      copy: src=./redis.service dest=/etc/systemd/system/redis.service
+      copy: src=redis.service dest=/etc/systemd/system
 
     # 重载systemd
     - name: reload systemd
