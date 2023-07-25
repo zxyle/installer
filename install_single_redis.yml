@@ -90,13 +90,13 @@
         state: started
         enabled: True
 
-    # 开放端口
-    - name: open port
-      firewalld:
-        port: 6379/tcp
-        permanent: yes
-        state: enabled
-        immediate: yes
+    # 开放端口（必要时取消注释）
+#    - name: open port
+#      firewalld:
+#        port: 6379/tcp
+#        permanent: yes
+#        state: enabled
+#        immediate: yes
 
     # 删除安装包
     - name: clean tarball

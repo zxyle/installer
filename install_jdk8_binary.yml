@@ -29,7 +29,7 @@
     - name: Decompressing files
       shell: chdir={{ target }} tar zxvf {{ tarball }} -C {{ target }}
 
-    # 创建软连接
+    # 创建软连接 ln -s /opt/soft/jdk1.8.0_202 /usr/local/java
     - name: create links
       file: src={{ target }}/{{ unzipDir }} dest=/usr/local/java state=link
 
