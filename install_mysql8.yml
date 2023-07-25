@@ -18,18 +18,30 @@
     release: el7
 
   tasks:
-    - name: create installation directory
-      file:
-        path: "{{ target }}"
-        state: directory
+#    - name: create installation directory
+#      file:
+#        path: "{{ target }}"
+#        state: directory
+
+#    # 在线下载(适用开放外网，且网速佳的环境)
+#    - name: Install Package
+#      yum:
+#        name:
+#          - wget
+#          - libaio
+#
+#    - name: Download mysql package
+#      get_url:
+#        url: https://mirrors.aliyun.com/mysql/MySQL-8.0/{{ tarball }}
+#        dest: /opt/soft
 
     # 复制本地安装包到远程服务器
-    - name: copy tarball remote hosts
-      copy: src={{ localPath }}/{{ tarball }} dest={{ target }}
+#    - name: copy tarball remote hosts
+#      copy: src={{ localPath }}/{{ tarball }} dest={{ target }}
 
     # 解压安装包
-    - name: Decompressing files
-      shell: chdir={{ target }} tar xvf {{ tarball }}
+#    - name: Decompressing files
+#      shell: chdir={{ target }} tar xvf {{ tarball }}
 
     # 安装RPM包
     - name: Install
@@ -43,7 +55,7 @@
         - "mysql-community-client-{{ version }}.{{ release }}.{{ arch }}.rpm"
         - "mysql-community-server-{{ version }}.{{ release }}.{{ arch }}.rpm"
 
-    # 启动服务并设置开机启动
+    # 启动服务并设置开机启动 systemctl enable mysqld.service --now
     - name: start and enable mysqld.
       service:
         name: mysqld.service
@@ -69,22 +81,22 @@
       shell: chdir={{ target }} rm -rf  mysql-community-*.rpm
 
     # 开放端口
-    - name: open port
-      firewalld:
-        port: 3306/tcp
-        permanent: yes
-        state: enabled
-        immediate: yes
+#    - name: open port
+#      firewalld:
+#        port: 3306/tcp
+#        permanent: yes
+#        state: enabled
+#        immediate: yes
 
     # 后续步骤
     # 查看临时密码
-    # grep "password" /var/log/mysqld.log
+    # grep "password" /var/log/mysqld.log  iltuhkgD5W?X
 
     # 登录临时root用户, 使用上面临时密码
     # mysql -u root -p
       
     # 修改root账号密码
-    # ALTER USER 'root'@'localhost' IDENTIFIED BY 'QWqw12!@';
+    # ALTER USER 'root'@'localhost' IDENTIFIED BY 'Hr!CyEH22akHghgLk7';
       
     # 切换数据库
     # use mysql;

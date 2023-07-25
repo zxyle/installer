@@ -66,6 +66,12 @@
     - name: debug
       debug: var=status.stdout verbosity=0
 
+    # 删除安装包
+    - name: remove tarball
+      file:
+        path: "{{ target }}/{{ tarball }}"
+        state: absent
+
     # 开放端口（必要时取消注释）
 #    - name: open port
 #      firewalld:
