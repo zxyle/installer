@@ -1,0 +1,75 @@
+# 剧本作用: 用于在远程主机上安装单节点zookeeper
+# 安装命令: ansible-playbook -i hosts install_zookeeper.yml
+# 前置条件: 安装JDK
+
+- hosts: all
+  vars:
+    # 安装包名称
+    tarball: apache-zookeeper-3.6.4-bin.tar.gz
+    # zookeeper 安装包位置
+    localPath: ~/developer/software/zookeeper
+    # 解压目录名称
+    unzipDir: apache-zookeeper-3.6.4-bin
+    # 安装目录
+    target: /opt/soft
+    # zookeeper 数据目录
+    dataDir: /opt/data/zookeeper
+    # zookeeper 日志目录
+    dataLogDir: /opt/data/zookeeper/logs
+    # zookeeper 端口
+    clientPort: 2181
+
+  tasks:
+    - name: create installation directory
+      file:
+        path: "{{ target }}"
+        state: directory
+
+    # 上传包到远程主机
+    - name: copy tarball remote hosts
+      copy: src={{ localPath }}/{{ tarball }} dest={{ target }}
+
+    # 解压安装包
+    - name: Decompressing files
+      shell: chdir={{ target }} tar zxvf {{ tarball }} -C {{ target }}
+
+    # 修改zkEnv.sh
+    - name: Add JAVA_HOME to zkEnv.sh
+      lineinfile:
+        path: "{{ target }}/{{ unzipDir }}/bin/zkEnv.sh"
+        line: |
+          export JAVA_HOME=/usr/local/java
+          export PATH=$JAVA_HOME/bin:$PATH
+        insertafter: '^#!'   # 在文件的第二行插入 JAVA_HOME 和 PATH 行
+
+    # 创建配置文件
+    - name: create zookeeper config
+      shell: chdir={{ target }}/{{ unzipDir }}/conf cp zoo_sample.cfg zoo.cfg
+
+    # 修改配置文件 - dataDir （必要时取消注释）
+#    - name: modify zookeeper config
+#      shell: chdir={{ target }}/{{ unzipDir }}/conf sed -i 's#dataDir=/tmp/zookeeper#dataDir={{ dataDir }}#g' zoo.cfg
+
+    # 修改配置文件 - dataLogDir （必要时取消注释）
+#    - name: modify zookeeper config
+#      shell: chdir={{ target }}/{{ unzipDir }}/conf sed -i 's#dataLogDir=/tmp/zookeeper#dataLogDir={{ dataLogDir }}#g' zoo.cfg
+
+   # 启动zookeeper
+    - name: start zookeeper
+      command: bash {{ target }}/{{ unzipDir }}/bin/zkServer.sh start
+
+    # 查看启动状态
+    - name: Display status
+      shell: chdir={{ target }}/{{ unzipDir }}/bin ./zkServer.sh status
+      register: status
+
+    - name: debug
+      debug: var=status.stdout verbosity=0
+
+    # 开放端口（必要时取消注释）
+#    - name: open port
+#      firewalld:
+#        port: "{{ clientPort }}/tcp"
+#        permanent: yes
+#        state: enabled
+#        immediate: yes
