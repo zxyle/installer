@@ -1,5 +1,5 @@
 # 剧本作用: 用于在远程主机上安装单节点redis
-# 安装命令: ansible-playbook -i hosts install_single_redis.yml
+# 安装命令: ansible-playbook -i hosts install_redis_single.yml
 # 软件下载: https://download.redis.io/releases/redis-6.2.6.tar.gz
 
 - hosts: all

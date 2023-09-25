@@ -1,0 +1,27 @@
+# 剧本作用: 安装jenkins
+# 安装命令: ansible-playbook -i hosts install_jenkins.yml
+# 软件下载: https://mirrors.aliyun.com/jenkins/war/latest/jenkins.war
+# 前提条件: 安装JDK11+
+
+- hosts: all
+  vars:
+    # 安装包名称
+    tarball: jenkins.war
+    # 本地安装包位置
+    localPath: ~/developer/software/jenkins
+    # 安装目录
+    target: /opt/soft
+
+  tasks:
+    # 创建安装目录
+    - name: create installation directory
+      file:
+        path: "{{ target }}"
+        state: directory
+
+    # 上传war包到远程主机
+    - name: upload war
+      copy: src={{ localPath }}/{{ tarball }} dest={{ target }}
+
+    # 启动jenkins
+    # java -jar jenkins.war --httpPort=8080
