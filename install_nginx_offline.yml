@@ -1,0 +1,40 @@
+# 剧本作用: 用于在远程主机上离线安装nginx
+# 安装命令: ansible-playbook -i hosts install_nginx_offline.yml
+
+- hosts: all
+  vars:
+    # 安装包名称
+    tarball: nginx-1.20.1-10.tgz
+    # 本地安装包位置
+    localPath: ~/developer/software/nginx
+    target: /opt/soft
+
+  tasks:
+    # 创建安装目录
+    - name: create installation directory
+      file:
+        path: "{{ target }}"
+        state: directory
+
+    # 上传rpm包到远程主机
+    - name: upload tarball
+      copy: src={{ localPath }}/{{ tarball }} dest={{ target }}
+
+    # 解压安装包
+    - name: Decompressing files
+      shell: chdir={{ target }} tar zxvf {{ tarball }}
+
+    # 安装RPM包
+    - name: Install
+      shell: chdir=/opt/soft/nginx-1.20.1-10/ /usr/bin/rpm -ivh *.rpm  --force --nodeps
+
+    # 清理安装包
+    - name: clean tarball
+      shell: chdir=/opt/soft/ rm -rf nginx-*
+
+    # 启动openresty并设置开机启动
+    - name: start and enable redis.
+      service:
+        name: nginx.service
+        state: started
+        enabled: True
