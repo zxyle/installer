@@ -94,7 +94,7 @@
     # mysql -u root -p
 
     # 修改root账号密码
-    # ALTER USER 'root'@'%' IDENTIFIED BY 'CJNsZLWQJ6!x77#m';
+    # ALTER USER 'root'@'localhost' IDENTIFIED BY 'Td@123456';
 
     # 切换数据库
     # use mysql;
