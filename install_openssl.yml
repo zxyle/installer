@@ -1,0 +1,37 @@
+# https://blog.csdn.net/kamarl/article/details/140120118
+# 源码编译安装python
+# ansible-playbook -i hosts install_openssl.yml
+- hosts: all
+  vars:
+    # 安装包名称
+    tarball: openssl-1.1.1q.tar.gz
+    # 本地安装包位置
+    localPath: ~/developer/software
+    # 解压目录名称
+    unzipDir: openssl-1.1.1q
+    # 安装目录
+    target: /opt/soft
+  tasks:
+    - name: copy tarball remote hosts
+      copy: src={{ localPath }}/{{ tarball }} dest={{ target }}
+
+    - name: Decompressing files
+      shell: chdir={{ target }} tar zxvf {{ tarball }} -C {{ target }}
+
+    - name: compile
+      shell: chdir={{ target }}/{{ unzipDir }} ./config --prefix=/usr/local/ssl
+
+    - name: compile
+      shell: chdir={{ target }}/{{ unzipDir }} make && make install
+
+    - name: clean unzipDir
+      file:
+        path: "{{ target }}/{{ unzipDir }}"
+        state: absent
+
+    - name: gather OpenSSL Version info
+      shell: /usr/local/ssl/bin/openssl version
+      register: version
+
+    - name: debug
+      debug: var=version.stdout verbosity=0
