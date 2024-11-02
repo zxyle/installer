@@ -3,11 +3,11 @@
 - hosts: all
   vars:
     # 安装包名称
-    tarball: Python-3.9.5.tgz
+    tarball: Python-3.12.6.tgz
     # 本地安装包位置
     localPath: ~/developer/software/python
     # 解压目录名称
-    unzipDir: Python-3.9.5
+    unzipDir: Python-3.12.6
     # 安装目录
     target: /opt/soft
   tasks:
@@ -32,7 +32,7 @@
       shell: chdir={{ target }} tar zxvf {{ tarball }} -C {{ target }}
 
     - name: compile
-      shell: chdir={{ target }}/{{ unzipDir }} ./configure --prefix=/usr/local/python3
+      shell: chdir={{ target }}/{{ unzipDir }} ./configure --with-ssl --prefix=/usr/local/python3
 
     - name: compile
       shell: chdir={{ target }}/{{ unzipDir }} make && make install
